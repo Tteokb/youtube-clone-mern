@@ -13,13 +13,13 @@ const seedData = async () => {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to MongoDB for seeding...");
 
-    // Clear existing data
+    // 1. Wipe existing data
     await User.deleteMany({});
     await Channel.deleteMany({});
     await Video.deleteMany({});
     await Comment.deleteMany({});
 
-    // 1. Create a demo user
+    // 2. Create sample demo user
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash("password123", salt);
 
@@ -30,7 +30,7 @@ const seedData = async () => {
       avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150"
     });
 
-    // 2. Create a demo channel
+    // 3. Create demo channel owned by user
     const channel = await Channel.create({
       channelName: "Code with John",
       owner: user._id,
@@ -43,11 +43,11 @@ const seedData = async () => {
     user.channels.push(channel._id);
     await user.save();
 
-    // 3. Create initial videos across 6+ categories
+    // 4. Create videos across 6+ categories
     const videosData = [
       {
         title: "Learn React in 30 Minutes",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        videoUrl: "https://www.youtube.com/watch?v=hQAHSlTtcmY",
         thumbnailUrl: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600",
         description: "A quick tutorial to get started with React fundamentals.",
         category: "Web Development",
@@ -59,7 +59,7 @@ const seedData = async () => {
       },
       {
         title: "JavaScript ES6 Mastery Course",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+        videoUrl: "https://www.youtube.com/watch?v=NCwa_xi0Uuc",
         thumbnailUrl: "https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=600",
         description: "Arrow functions, destructuring, promises, and async/await.",
         category: "JavaScript",
@@ -71,7 +71,7 @@ const seedData = async () => {
       },
       {
         title: "Binary Search Tree Explained Simply",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+        videoUrl: "https://www.youtube.com/watch?v=f5dU3xoE6ms",
         thumbnailUrl: "https://images.unsplash.com/photo-1516116211227-bbc13c2441f6?w=600",
         description: "Everything you need to know about BST operations.",
         category: "Data Structures",
@@ -83,7 +83,7 @@ const seedData = async () => {
       },
       {
         title: "Chill Lofi Beats to Code/Study To",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+        videoUrl: "https://www.youtube.com/watch?v=jfKfPfyJRdk",
         thumbnailUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600",
         description: "Calm music for studying, reading, and software development.",
         category: "Music",
@@ -95,7 +95,7 @@ const seedData = async () => {
       },
       {
         title: "Top 10 RPGs Coming in 2026",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+        videoUrl: "https://www.youtube.com/watch?v=21X5lGlDOfg",
         thumbnailUrl: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=600",
         description: "A complete countdown of the most anticipated upcoming RPG games.",
         category: "Gaming",
@@ -107,7 +107,7 @@ const seedData = async () => {
       },
       {
         title: "Tech Talks: The Future of Cloud and AI",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4",
+        videoUrl: "https://www.youtube.com/watch?v=aircAruvnKk",
         thumbnailUrl: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=600",
         description: "Industry experts discuss the next decade of full-stack engineering.",
         category: "Podcasts",
@@ -121,11 +121,11 @@ const seedData = async () => {
 
     const createdVideos = await Video.insertMany(videosData);
 
-    // Update channel's video list
+    // Link videos to Channel
     channel.videos = createdVideos.map((v) => v._id);
     await channel.save();
 
-    // 4. Add a sample comment
+    // 5. Create an initial comment
     await Comment.create({
       videoId: createdVideos[0]._id,
       userId: user._id,
